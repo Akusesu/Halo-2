@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=Halo 2 PC
+Comment=Continue the fight.
+Exec=h2pc %U
+Icon=net.bungie.H2PC
+StartupNotify=true
+Terminal=false
+Type=Application
+MimeType=application/x-ms-dos-executable;application/x-msi;application/x-ms-shortcut;
+Categories=Game;FPS;
+Keywords=Halo

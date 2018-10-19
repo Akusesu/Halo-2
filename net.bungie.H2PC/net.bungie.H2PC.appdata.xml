@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+    <id>com.bungie.H2V.desktop</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>LicenseRef-proprietary</project_license>
+    <name>Halo 2 Vista</name>
+    <summary></summary>
+    <description>
+        <p>You are the last of your kind. Bred for combat, built for war, you are the master
+        of any weapon, pilot of any vehicle and fear no enemy.
+
+        Bent on Humankind’s extermination, a powerful fellowship of alien races known as
+        the Covenant is wiping out the Earth’s fledgling interstellar empire. You and the other
+        surviving defenders of a devastated colony-world make a desperate attempt to lure the
+        alien fleet away from Earth. Shot down and marooned on the ancient ring-world Halo, you
+        begin a guerilla-war against the Covenant. Fight for humanity against an alien onslaught
+        as you race to uncover the mysteries of Halo.</p>
+    </description>
+
+    <screenshots>
+        <screenshot type="default">
+            <image width="640" height="480">http://halo.bungie.net/images/games/Halo/screenshots/scrn_116.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image width="640" height="480">http://halo.bungie.net/images/games/Halo/screenshots/scrn_120.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image width="640" height="480">http://halo.bungie.net/images/games/Halo/screenshots/scrn_123.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image width="640" height="480">http://halo.bungie.net/images/games/Halo/screenshots/scrn_122.jpg</image>
+        </screenshot>
+        <screenshot>
+            <image width="640" height="480">http://halo.bungie.net/images/games/Halo/screenshots/scrn_124.jpg</image>
+        </screenshot>
+    </screenshots>
+
+    <project_group>Akusesu</project_group>
+    <developer_name>Microsoft</developer_name>
+
+    <url type="homepage">http://halo.bungie.net/projects/Halo/</url>
+
+    <categories>
+        <category>Game</category>
+        <category>Sandbox</category>
+    </categories>
+
+    <requires>
+        <id version="0.11.4" compare="ge">org.freedesktop.Flatpak</id>
+        <memory>1024</memory>
+    </requires>
+
+    <recommends>
+        <id version="0.11.7" compare="ge">org.freedesktop.Flatpak</id>
+        <memory>2048</memory>
+    </recommends>
+
+    <releases>
+        <release date="2018-10-15" version="2018-09-15">
+            <description>
+                <ul>
+                    <li>Combat continues.</li>
+                </ul>
+            </description>
+        </release>
+    </releases>
+</component>

@@ -1,0 +1,183 @@
+app-id: net.bungie.H2PC
+branch: stable
+
+runtime: org.winepak.Platform
+runtime-version: 3.0
+sdk: org.winepak.Sdk
+
+command: h2pc
+
+add-extensions:
+  org.winepak.Platform.Compat32:
+    directory: lib/32bit
+    version: 3.0
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine:
+    directory: lib/wine
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+
+  org.winepak.Platform.Wine.Compat32:
+    directory: lib/wine-32bit
+    version: 3.10-staging
+    add-ld-path: lib
+    no-autodownload: false
+    
+  org.winepak.Platform.Extension.d3dx9:
+    directory: lib/extension/d3dx9
+    version: 3.0
+    no-autodownload: false
+    
+  org.winepak.Platform.Extension.vcrun2010:
+    directory: lib/extension/vcrun2010
+    version: 3.0
+    no-autodownload: false
+
+tags:
+  - proprietary
+
+finish-args:
+  - --socket=x11
+  - --socket=pulseaudio
+  - --share=ipc
+  - --share=network
+  - --device=dri
+  - --env=GPU_MAX_HEAP_SIZE="100"
+  - --env=GPU_MAX_ALLOC_PERCENT="100"
+  - --env=MESA_GLTHREAD=true
+  - --env=__GL_THREADED_OPTIMIZATIONS=1
+
+modules:
+  - name: setup-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/32bit
+      - ln -s /app/lib/32bit/lib/ld-linux.so.2 /app/lib/ld-linux.so.2
+      
+  - name: setup-wine
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine
+      
+  - name: setup-wine-compat32
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/wine-32bit
+
+  - name: h2pc-setup
+    only-arches:
+      - x86_64
+    buildsystem: simple
+    build-commands:
+      - install -d /app/bin/
+      - cp -r halo /app/bin/
+      - install H2PC-Installer /app/bin/
+      - install h2pc /app/bin/
+      - install -Dm644 MP10Setup.exe /app/bin/MP10Setup.exe
+      - install -Dm644 VC6RedistSetup_deu.exe /app/bin/VC6RedistSetup_deu.exe
+      - install -Dm644 msxml3.msi /app/bin/msxml3.msi
+      - install -Dm644 net.bungie.H2PC.appdata.xml /app/share/appdata/net.bungie.H2PC.appdata.xml
+      - install -Dm644 net.bungie.H2PC.desktop /app/share/applications/net.bungie.H2PC.desktop
+    sources:
+      - type: script
+        dest-filename: H2PC-Installer
+        commands:
+          - if [ -z "$WINEPREFIX" ] ; then
+          - '    echo "No wine prefix set or is empty, abort."'
+          - '    exit 1'
+          - fi
+          -
+          - if [ -e "${WINEPREFIX}/dosdevices/c:/Program Files/Microsoft Games" ] ; then
+          - '    echo "This prefix already has an exisiting ''H2PC'' install at ${WINEPREFIX}"'
+          - '    echo "In order to install ''H2PC'' you must move or delete the current prefix."'
+          - '    exit 1'
+          - fi
+          -
+          - echo "Setting-up wine prefix..."
+          - wineboot
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Clear Windows Version"
+          - wine64 reg delete 'HKLM\Software\Microsoft\Windows\CurrentVersion' /v SubVersionNumber /f
+          - wine64 reg delete 'HKLM\Software\Microsoft\Windows\CurrentVersion' /v VersionNumber /f
+          - wine64 reg delete 'HKLM\Software\Microsoft\Windows NT\CurrentVersion' /v CSDVersion /f
+          - wine64 reg delete 'HKLM\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuildNumber /f
+          - wine64 reg delete 'HKLM\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentVersion /f
+          - wine64 reg delete 'HKLM\System\CurrentControlSet\Control\ProductOptions' /v ProductType /f
+          - wine64 reg delete 'HKLM\System\CurrentControlSet\Control\ServiceCurrent' /v OS /f
+          - wine64 reg delete 'HKLM\System\CurrentControlSet\Control\Windows' /v CSDVersion /f
+          - wine64 reg delete 'HKCU\Software\Wine' /v Version /f
+          - wine64 reg delete 'HKLM\System\CurrentControlSet\Control\ProductOptions' /v ProductType /f
+          - echo "Set Windows Version to Vista"
+          - wine64 reg add 'HKLM\System\CurrentControlSet\Control\ProductOptions' /v ProductType /d 'WinNT' /f
+          - wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CSDVersion /d 'Service Pack 2' /f
+          - wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentBuildNumber /d '6002' /f
+          - wine64 reg add 'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion' /v CurrentVersion /d '6.0' /f
+          - wine64 reg add 'HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\Windows' /v CSDVersion /t REG_DWORD /d 00000200 /f
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Installing mf40"
+          - wine64 "/app/bin/VC6RedistSetup_deu.exe"
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Installing msxml3"
+          - wine64 msiexec /i "/app/bin/msxml3.msi"
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Installing wmp10"
+          - wine64 "/app/bin/MP10Setup.exe"
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - mkdir -p $XDG_DATA_HOME/profiles
+          - '[ -d ~/Documents ] && rmdir ~/Documents ||:'
+          - ln -sf $XDG_DATA_HOME/profiles ~/Documents
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Installing Project Cartographer"
+          - wine64 "/app/bin/halo/h2pc_setup_1.7.exe"
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - echo "Installer finished"
+      - type: script
+        dest-filename: h2pc
+        commands:
+          - export WINEARCH=win64
+          - if ! [ -e "${WINEPREFIX}/dosdevices/c:/Games" ] ; then
+          - '    source /app/bin/H2PC-Installer'
+          - '    if [[ $? != 0 ]] ; then'
+          - '        echo "Installation failed, abort."'
+          - '        exit 1'
+          - '    fi'
+          - fi
+          -
+          - while ps -e | grep -q wine; do sleep 1; done
+          -
+          - cd '/var/data/wine/dosdevices/c:/Games/Halo 2 Project Cartographer'
+          - wine64 "C:/Games/Halo 2 Project Cartographer/halo2.exe" "$@"
+      - type: file
+        path: net.bungie.H2PC.appdata.xml
+      - type: file
+        path: net.bungie.H2PC.desktop
+      - type: dir
+        path: ./halo2-setup
+        dest: halo
+      - type: file
+        url: https://download.microsoft.com/download/vc60pro/Update/2/W9XNT4/EN-US/VC6RedistSetup_deu.exe
+        sha256: c2eb91d9c4448d50e46a32fecbcc3b418706d002beab9b5f4981de552098cee7
+      - type: file
+        url: https://media.codeweavers.com/pub/other/msxml3.msi
+        sha256: f9c678f8217e9d4f9647e8a1f6d89a7c26a57b9e9e00d39f7487493dd7b4e36c
+      - type: file
+        url: https://download.microsoft.com/download/1/2/a/12a31f29-2fa9-4f50-b95d-e45ef7013f87/MP10Setup.exe
+        sha256: c1e71784c530035916aad5b09fa002abfbb7569b75208dd79351f29c6d197e03
+
