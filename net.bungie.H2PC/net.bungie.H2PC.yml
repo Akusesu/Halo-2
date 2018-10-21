@@ -2,30 +2,16 @@ app-id: net.bungie.H2PC
 branch: stable
 
 runtime: org.winepak.Platform
-runtime-version: 3.0
+runtime-version: 3.10-staging
 sdk: org.winepak.Sdk
 
 command: h2pc
 
 add-extensions:
-  org.winepak.Platform.Compat32:
-    directory: lib/32bit
-    version: 3.0
-    add-ld-path: lib
-    no-autodownload: false
-
-  org.winepak.Platform.Wine:
-    directory: lib/wine
+  org.winepak.Platform.Compat.i386:
+    directory: lib/i386-linux-gnu
     version: 3.10-staging
-    add-ld-path: lib
-    no-autodownload: false
-
-  org.winepak.Platform.Wine.Compat32:
-    directory: lib/wine-32bit
-    version: 3.10-staging
-    add-ld-path: lib
-    no-autodownload: false
-    
+      
   org.winepak.Platform.Extension.d3dx9:
     directory: lib/extension/d3dx9
     version: 3.0
@@ -51,22 +37,14 @@ finish-args:
   - --env=__GL_THREADED_OPTIMIZATIONS=1
 
 modules:
-  - name: setup-compat32
-    buildsystem: simple
-    build-commands:
-      - mkdir -p /app/lib/32bit
-      - ln -s /app/lib/32bit/lib/ld-linux.so.2 /app/lib/ld-linux.so.2
-      
-  - name: setup-wine
-    buildsystem: simple
-    build-commands:
-      - mkdir -p /app/lib/wine
-      
-  - name: setup-wine-compat32
-    buildsystem: simple
-    build-commands:
-      - mkdir -p /app/lib/wine-32bit
 
+  - name: setup
+    buildsystem: simple
+    build-commands:
+      - mkdir -p /app/lib/i386-linux-gnu
+      - mkdir -p /app/lib/extension/d3dx9
+      - mkdir -p /app/lib/extension/vcrun2010
+      
   - name: h2pc-setup
     only-arches:
       - x86_64
@@ -152,6 +130,7 @@ modules:
         dest-filename: h2pc
         commands:
           - export WINEARCH=win64
+          -
           - if ! [ -e "${WINEPREFIX}/dosdevices/c:/Games" ] ; then
           - '    source /app/bin/H2PC-Installer'
           - '    if [[ $? != 0 ]] ; then'
